@@ -11,3 +11,5 @@ roo-cline-*.vsix
 
 # Local prompts and rules
 /local-prompts
+.aider*
+.env
