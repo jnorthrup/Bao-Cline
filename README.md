@@ -1,4 +1,4 @@
-# Roo-Cline
+# Bao-Cline
 
 A fork of Cline, an autonomous coding agent, tweaked for more speed and flexibility. It’s been mainly writing itself recently, with a light touch of human guidance here and there.
 
@@ -17,16 +17,16 @@ A fork of Cline, an autonomous coding agent, tweaked for more speed and flexibil
 
 ## Disclaimer
 
-**Please note** that Roo Veterinary, Inc does **not** make any representations or warranties regarding any code, models, or other tools provided or made available in connection with Roo-Cline, any associated third-party tools, or any resulting outputs. You assume **all risks** associated with the use of any such tools or outputs; such tools are provided on an **"AS IS"** and **"AS AVAILABLE"** basis. Such risks may include, without limitation, intellectual property infringement, cyber vulnerabilities or attacks, bias, inaccuracies, errors, defects, viruses, downtime, property loss or damage, and/or personal injury. You are solely responsible for your use of any such tools or outputs (including, without limitation, the legality, appropriateness, and results thereof).
+**Please note** that Roo Veterinary, Inc does **not** make any representations or warranties regarding any code, models, or other tools provided or made available in connection with Bao-Cline, any associated third-party tools, or any resulting outputs. You assume **all risks** associated with the use of any such tools or outputs; such tools are provided on an **"AS IS"** and **"AS AVAILABLE"** basis. Such risks may include, without limitation, intellectual property infringement, cyber vulnerabilities or attacks, bias, inaccuracies, errors, defects, viruses, downtime, property loss or damage, and/or personal injury. You are solely responsible for your use of any such tools or outputs (including, without limitation, the legality, appropriateness, and results thereof).
 
 ## Demo
 
-Here's an example of Roo-Cline autonomously creating a snake game with "Always approve write operations" and "Always approve browser actions" turned on:
+Here's an example of Bao-Cline autonomously creating a snake game with "Always approve write operations" and "Always approve browser actions" turned on:
 
 https://github.com/user-attachments/assets/c2bb31dc-e9b2-4d73-885d-17f1471a4987
 
 ## Contributing
-To contribute to the project, start by exploring [open issues](https://github.com/RooVetGit/Roo-Cline/issues) or checking our [feature request board](https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop). We'd also love to have you join our [Discord](https://discord.gg/cline) to share ideas and connect with other contributors.
+To contribute to the project, start by exploring [open issues](https://github.com/RooVetGit/Bao-Cline/issues) or checking our [feature request board](https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop). We'd also love to have you join our [Discord](https://discord.gg/cline) to share ideas and connect with other contributors.
 
 <details>
 <summary>Local Setup</summary>
@@ -48,8 +48,8 @@ To contribute to the project, start by exploring [open issues](https://github.co
    - **Option 2:** Install the plugin using the CLI, make sure you have your VSCode-compatible CLI installed and in your `PATH` variable. Cursor example: `export PATH="$PATH:/Applications/Cursor.app/Contents/MacOS"`
 
     ```bash
-    # Ex: cursor --install-extension bin/roo-cline-2.0.1.vsix
-    # Ex: code --install-extension bin/roo-cline-2.0.1.vsix
+    # Ex: cursor --install-extension bin/bao-cline-2.0.1.vsix
+    # Ex: code --install-extension bin/bao-cline-2.0.1.vsix
     ```
 
 5. Launch by pressing `F5` (or `Run`->`Start Debugging`) to open a new VSCode window with the extension loaded. (You may need to install the [esbuild problem matchers extension](https://marketplace.visualstudio.com/items?itemName=connor4312.esbuild-problem-matchers) if you run into issues building the project.)
@@ -79,7 +79,7 @@ Once your merge is successful:
 </details>
 
 ## Stay Updated!
-Subscribe to our [Github releases](https://github.com/RooVetGit/Roo-Cline/releases) to keep up with the latest updates! You can also view our [CHANGELOG.md](Roo-Cline/CHANGELOG.md) for more details.
+Subscribe to our [Github releases](https://github.com/RooVetGit/Bao-Cline/releases) to keep up with the latest updates! You can also view our [CHANGELOG.md](Bao-Cline/CHANGELOG.md) for more details.
 
 ---
 
@@ -93,7 +93,7 @@ Subscribe to our [Github releases](https://github.com/RooVetGit/Roo-Cline/releas
 <table>
 <tbody>
 <td align="center">
-<a href="https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline" target="_blank"><strong>Download on VS Marketplace</strong></a>
+<a href="https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.bao-cline" target="_blank"><strong>Download on VS Marketplace</strong></a>
 </td>
 <td align="center">
 <a href="https://discord.gg/cline" target="_blank"><strong>Join the Discord</strong></a>

@@ -7,7 +7,7 @@ node_modules
 
 # Builds
 bin/
-roo-cline-*.vsix
+bao-cline-*.vsix
 
 # Local prompts and rules
 /local-prompts

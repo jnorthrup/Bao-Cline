@@ -1,10 +1,10 @@
 {
-  "name": "roo-cline",
+  "name": "bao-cline",
   "displayName": "Roo Cline",
   "description": "A fork of Cline, an autonomous coding agent, with some added experimental configuration and automation features.",
-  "publisher": "RooVeterinaryInc",
+  "publisher": "jnorthrup",
   "version": "2.2.13",
-  "icon": "assets/icons/rocket.png",
+  "icon": "assets/icons/leopard.png",
   "galleryBanner": {
     "color": "#617A91",
     "theme": "dark"
@@ -17,9 +17,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/RooVetGit/Roo-Cline"
+    "url": "https://github.com/RooVetGit/Bao-Cline"
   },
-  "homepage": "https://github.com/RooVetGit/Roo-Cline",
+  "homepage": "https://github.com/RooVetGit/Bao-Cline",
   "categories": [
     "AI",
     "Chat",
@@ -48,49 +48,49 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "roo-cline-ActivityBar",
+          "id": "bao-cline-ActivityBar",
           "title": "Roo Cline",
           "icon": "$(rocket)"
         }
       ]
     },
     "views": {
-      "roo-cline-ActivityBar": [
+      "bao-cline-ActivityBar": [
         {
           "type": "webview",
-          "id": "roo-cline.SidebarProvider",
+          "id": "bao-cline.SidebarProvider",
           "name": ""
         }
       ]
     },
     "commands": [
       {
-        "command": "roo-cline.plusButtonClicked",
+        "command": "bao-cline.plusButtonClicked",
         "title": "New Task",
         "icon": "$(add)"
       },
       {
-        "command": "roo-cline.mcpButtonClicked",
+        "command": "bao-cline.mcpButtonClicked",
         "title": "MCP Servers",
         "icon": "$(server)"
       },
       {
-        "command": "roo-cline.historyButtonClicked",
+        "command": "bao-cline.historyButtonClicked",
         "title": "History",
         "icon": "$(history)"
       },
       {
-        "command": "roo-cline.popoutButtonClicked",
+        "command": "bao-cline.popoutButtonClicked",
         "title": "Open in Editor",
         "icon": "$(link-external)"
       },
       {
-        "command": "roo-cline.settingsButtonClicked",
+        "command": "bao-cline.settingsButtonClicked",
         "title": "Settings",
         "icon": "$(settings-gear)"
       },
       {
-        "command": "roo-cline.openInNewTab",
+        "command": "bao-cline.openInNewTab",
         "title": "Open In New Tab",
         "category": "Roo Cline"
       }
@@ -98,36 +98,36 @@
     "menus": {
       "view/title": [
         {
-          "command": "roo-cline.plusButtonClicked",
+          "command": "bao-cline.plusButtonClicked",
           "group": "navigation@1",
-          "when": "view == roo-cline.SidebarProvider"
+          "when": "view == bao-cline.SidebarProvider"
         },
         {
-          "command": "roo-cline.mcpButtonClicked",
+          "command": "bao-cline.mcpButtonClicked",
           "group": "navigation@2",
-          "when": "view == roo-cline.SidebarProvider"
+          "when": "view == bao-cline.SidebarProvider"
         },
         {
-          "command": "roo-cline.historyButtonClicked",
+          "command": "bao-cline.historyButtonClicked",
           "group": "navigation@3",
-          "when": "view == roo-cline.SidebarProvider"
+          "when": "view == bao-cline.SidebarProvider"
         },
         {
-          "command": "roo-cline.popoutButtonClicked",
+          "command": "bao-cline.popoutButtonClicked",
           "group": "navigation@4",
-          "when": "view == roo-cline.SidebarProvider"
+          "when": "view == bao-cline.SidebarProvider"
         },
         {
-          "command": "roo-cline.settingsButtonClicked",
+          "command": "bao-cline.settingsButtonClicked",
           "group": "navigation@5",
-          "when": "view == roo-cline.SidebarProvider"
+          "when": "view == bao-cline.SidebarProvider"
         }
       ]
     },
     "configuration": {
-      "title": "RooCline",
+      "title": "BaoCline",
       "properties": {
-        "roo-cline.allowedCommands": {
+        "bao-cline.allowedCommands": {
           "type": "array",
           "items": {
             "type": "string"

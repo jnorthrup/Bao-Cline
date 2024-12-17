@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Get default commands from configuration
 	const defaultCommands = vscode.workspace
-		.getConfiguration('roo-cline')
+		.getConfiguration('bao-cline')
 		.get<string[]>('allowedCommands') || [];
 
 	// Initialize global state if not already set
@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("roo-cline.plusButtonClicked", async () => {
+		vscode.commands.registerCommand("bao-cline.plusButtonClicked", async () => {
 			outputChannel.appendLine("Plus button Clicked")
 			await sidebarProvider.clearTask()
 			await sidebarProvider.postStateToWebview()
@@ -54,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("roo-cline.mcpButtonClicked", () => {
+		vscode.commands.registerCommand("bao-cline.mcpButtonClicked", () => {
 			sidebarProvider.postMessageToWebview({ type: "action", action: "mcpButtonClicked" })
 		}),
 	)
@@ -82,8 +82,8 @@ export function activate(context: vscode.ExtensionContext) {
 		// TODO: use better svg icon with light and dark variants (see https://stackoverflow.com/questions/58365687/vscode-extension-iconpath)
 
 		panel.iconPath = {
-			light: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "rocket.png"),
-			dark: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "rocket.png"),
+			light: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "leopard.png"),
+			dark: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "leopard.png"),
 		}
 		tabProvider.resolveWebviewView(panel)
 
@@ -92,18 +92,18 @@ export function activate(context: vscode.ExtensionContext) {
 		await vscode.commands.executeCommand("workbench.action.lockEditorGroup")
 	}
 
-	context.subscriptions.push(vscode.commands.registerCommand("roo-cline.popoutButtonClicked", openClineInNewTab))
-	context.subscriptions.push(vscode.commands.registerCommand("roo-cline.openInNewTab", openClineInNewTab))
+	context.subscriptions.push(vscode.commands.registerCommand("bao-cline.popoutButtonClicked", openClineInNewTab))
+	context.subscriptions.push(vscode.commands.registerCommand("bao-cline.openInNewTab", openClineInNewTab))
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("roo-cline.settingsButtonClicked", () => {
+		vscode.commands.registerCommand("bao-cline.settingsButtonClicked", () => {
 			//vscode.window.showInformationMessage(message)
 			sidebarProvider.postMessageToWebview({ type: "action", action: "settingsButtonClicked" })
 		}),
 	)
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("roo-cline.historyButtonClicked", () => {
+		vscode.commands.registerCommand("bao-cline.historyButtonClicked", () => {
 			sidebarProvider.postMessageToWebview({ type: "action", action: "historyButtonClicked" })
 		}),
 	)
