@@ -9,6 +9,7 @@ import {
 } from "../../shared/api"
 import { ApiHandler } from "../index"
 import { ApiStream } from "../transform/stream"
+import { getApiKeyFromEnv } from "../../utils/api"
 
 export class AnthropicHandler implements ApiHandler {
 	private options: ApiHandlerOptions
@@ -16,8 +17,17 @@ export class AnthropicHandler implements ApiHandler {
 
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
+		// Try environment variables first, then fall back to provided options
+		const apiKey = this.options.apiKey || 
+			getApiKeyFromEnv("ANTHROPIC_API_KEY", false) || 
+			getApiKeyFromEnv("CLAUDE_API_KEY", false)
+		
+		// For display purposes, store the masked version
+		this.options.apiKey = getApiKeyFromEnv("ANTHROPIC_API_KEY") || 
+			getApiKeyFromEnv("CLAUDE_API_KEY")
+
 		this.client = new Anthropic({
-			apiKey: this.options.apiKey,
+			apiKey: apiKey,
 			baseURL: this.options.anthropicBaseUrl || undefined,
 		})
 	}

@@ -9,6 +9,7 @@ import {
 import { ApiHandler } from "../index"
 import { convertToOpenAiMessages } from "../transform/openai-format"
 import { ApiStream } from "../transform/stream"
+import { getApiKeyFromEnv } from "../../utils/api"
 
 export class OpenAiHandler implements ApiHandler {
 	private options: ApiHandlerOptions
@@ -16,18 +17,25 @@ export class OpenAiHandler implements ApiHandler {
 
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
+		// Try environment variable first, then fall back to provided option
+		const apiKey = this.options.openAiApiKey || 
+			getApiKeyFromEnv("OPENAI_API_KEY", false)
+		
+		// For display purposes, store the masked version
+		this.options.openAiApiKey = getApiKeyFromEnv("OPENAI_API_KEY")
+
 		// Azure API shape slightly differs from the core API shape: https://github.com/openai/openai-node?tab=readme-ov-file#microsoft-azure-openai
 		const urlHost = new URL(this.options.openAiBaseUrl ?? "").host;
 		if (urlHost === "azure.com" || urlHost.endsWith(".azure.com")) {
 			this.client = new AzureOpenAI({
 				baseURL: this.options.openAiBaseUrl,
-				apiKey: this.options.openAiApiKey,
+				apiKey: apiKey,
 				apiVersion: this.options.azureApiVersion || azureOpenAiDefaultApiVersion,
 			})
 		} else {
 			this.client = new OpenAI({
 				baseURL: this.options.openAiBaseUrl,
-				apiKey: this.options.openAiApiKey,
+				apiKey: apiKey,
 			})
 		}
 	}

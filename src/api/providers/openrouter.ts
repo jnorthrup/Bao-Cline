@@ -1,21 +1,15 @@
 import { Anthropic } from "@anthropic-ai/sdk"
-import axios from "axios"
 import OpenAI from "openai"
-import { ApiHandler } from "../"
-import { ApiHandlerOptions, ModelInfo, openRouterDefaultModelId, openRouterDefaultModelInfo } from "../../shared/api"
+import {
+	ApiHandlerOptions,
+	ModelInfo,
+	openRouterDefaultModelId,
+	openRouterDefaultModelInfo,
+} from "../../shared/api"
+import { ApiHandler } from "../index"
 import { convertToOpenAiMessages } from "../transform/openai-format"
-import { ApiStreamChunk, ApiStreamUsageChunk } from "../transform/stream"
-import delay from "delay"
-
-// Add custom interface for OpenRouter params
-interface OpenRouterChatCompletionParams extends OpenAI.Chat.ChatCompletionCreateParamsStreaming {
-    transforms?: string[];
-}
-
-// Add custom interface for OpenRouter usage chunk
-interface OpenRouterApiStreamUsageChunk extends ApiStreamUsageChunk {
-    fullResponseText: string;
-}
+import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
+import { getApiKeyFromEnv } from "../../utils/api"
 
 export class OpenRouterHandler implements ApiHandler {
 	private options: ApiHandlerOptions
@@ -23,165 +17,88 @@ export class OpenRouterHandler implements ApiHandler {
 
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
+		// Try environment variable first, then fall back to provided option
+		const apiKey = this.options.openRouterApiKey || getApiKeyFromEnv("OPENROUTER_API_KEY", false)
+
+		// For display purposes, store the masked version
+		this.options.openRouterApiKey = getApiKeyFromEnv("OPENROUTER_API_KEY")
+
 		this.client = new OpenAI({
 			baseURL: "https://openrouter.ai/api/v1",
-			apiKey: this.options.openRouterApiKey,
+			apiKey: apiKey,
 			defaultHeaders: {
-				"HTTP-Referer": "https://github.com/RooVetGit/Roo-Cline", // Optional, for including your app on openrouter.ai rankings.
-				"X-Title": "Roo-Cline", // Optional. Shows in rankings on openrouter.ai.
+				"HTTP-Referer": "https://github.com/RooVetGit/Roo-Cline",
+				"X-Title": "Roo-Cline",
 			},
 		})
 	}
 
-	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): AsyncGenerator<ApiStreamChunk> {
-		// Convert Anthropic messages to OpenAI format
+	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const openAiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
 			{ role: "system", content: systemPrompt },
 			...convertToOpenAiMessages(messages),
 		]
+		try {
+			const stream = await this.client.chat.completions.create({
+				model: this.options.openRouterModelId ?? openRouterDefaultModelId,
+				messages: openAiMessages,
+				temperature: 0,
+				stream: true,
+			})
+			let totalInputTokens = 0
+			let totalOutputTokens = 0
+			let totalCost = 0
+			let fullResponseText = ""
 
-		// prompt caching: https://openrouter.ai/docs/prompt-caching
-		// this is specifically for claude models (some models may 'support prompt caching' automatically without this)
-		switch (this.getModel().id) {
-			case "anthropic/claude-3.5-sonnet":
-			case "anthropic/claude-3.5-sonnet:beta":
-			case "anthropic/claude-3.5-sonnet-20240620":
-			case "anthropic/claude-3.5-sonnet-20240620:beta":
-			case "anthropic/claude-3-5-haiku":
-			case "anthropic/claude-3-5-haiku:beta":
-			case "anthropic/claude-3-5-haiku-20241022":
-			case "anthropic/claude-3-5-haiku-20241022:beta":
-			case "anthropic/claude-3-haiku":
-			case "anthropic/claude-3-haiku:beta":
-			case "anthropic/claude-3-opus":
-			case "anthropic/claude-3-opus:beta":
-				openAiMessages[0] = {
-					role: "system",
-					content: [
-						{
-							type: "text",
-							text: systemPrompt,
-							// @ts-ignore-next-line
-							cache_control: { type: "ephemeral" },
-						},
-					],
+			for await (const chunk of stream) {
+				// Safely handle chunks with optional chaining
+				const choices = chunk.choices ?? []
+				const firstChoice = choices[0] ?? {}
+				const delta = firstChoice.delta ?? {}
+
+				if (delta.content) {
+					const content = delta.content
+					fullResponseText += content
+					yield {
+						type: "text",
+						text: content,
+					}
 				}
-				// Add cache_control to the last two user messages
-				// (note: this works because we only ever add one user message at a time, but if we added multiple we'd need to mark the user message before the last assistant message)
-				const lastTwoUserMessages = openAiMessages.filter((msg) => msg.role === "user").slice(-2)
-				lastTwoUserMessages.forEach((msg) => {
-					if (typeof msg.content === "string") {
-						msg.content = [{ type: "text", text: msg.content }]
-					}
-					if (Array.isArray(msg.content)) {
-						// NOTE: this is fine since env details will always be added at the end. but if it weren't there, and the user added a image_url type message, it would pop a text part before it and then move it after to the end.
-						let lastTextPart = msg.content.filter((part) => part.type === "text").pop()
 
-						if (!lastTextPart) {
-							lastTextPart = { type: "text", text: "..." }
-							msg.content.push(lastTextPart)
-						}
-						// @ts-ignore-next-line
-						lastTextPart["cache_control"] = { type: "ephemeral" }
-					}
-				})
-				break
-			default:
-				break
-		}
+				// Safely handle usage information
+				if (chunk.usage) {
+					const promptTokens = chunk.usage.prompt_tokens ?? 0
+					const completionTokens = chunk.usage.completion_tokens ?? 0
+					const modelInfo = this.getModel().info
 
-		// Not sure how openrouter defaults max tokens when no value is provided, but the anthropic api requires this value and since they offer both 4096 and 8192 variants, we should ensure 8192.
-		// (models usually default to max tokens allowed)
-		let maxTokens: number | undefined
-		switch (this.getModel().id) {
-			case "anthropic/claude-3.5-sonnet":
-			case "anthropic/claude-3.5-sonnet:beta":
-			case "anthropic/claude-3.5-sonnet-20240620":
-			case "anthropic/claude-3.5-sonnet-20240620:beta":
-			case "anthropic/claude-3-5-haiku":
-			case "anthropic/claude-3-5-haiku:beta":
-			case "anthropic/claude-3-5-haiku-20241022":
-			case "anthropic/claude-3-5-haiku-20241022:beta":
-				maxTokens = 8_192
-				break
-		}
-		// https://openrouter.ai/docs/transforms
-		let fullResponseText = "";
-		const stream = await this.client.chat.completions.create({
-			model: this.getModel().id,
-			max_tokens: maxTokens,
-			temperature: 0,
-			messages: openAiMessages,
-			stream: true,
-			// This way, the transforms field will only be included in the parameters when openRouterUseMiddleOutTransform is true.
-			...(this.options.openRouterUseMiddleOutTransform && { transforms: ["middle-out"] })
-		} as OpenRouterChatCompletionParams);
+					totalInputTokens += promptTokens
+					totalOutputTokens += completionTokens
+					totalCost += (promptTokens * (modelInfo.inputPrice ?? 0)) + 
+								 (completionTokens * (modelInfo.outputPrice ?? 0))
+				}
+			}
 
-		let genId: string | undefined
-
-		for await (const chunk of stream as unknown as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>) {
-			// openrouter returns an error object instead of the openai sdk throwing an error
-			if ("error" in chunk) {
-				const error = chunk.error as { message?: string; code?: number }
+			// Yield the usage chunk after the stream is complete
+			yield {
+				type: "usage",
+				inputTokens: totalInputTokens,
+				outputTokens: totalOutputTokens,
+				totalCost: totalCost,
+				fullResponseText: fullResponseText,
+			}
+		} catch (error: any) {
+			if (error?.code) {
 				console.error(`OpenRouter API Error: ${error?.code} - ${error?.message}`)
 				throw new Error(`OpenRouter API Error ${error?.code}: ${error?.message}`)
 			}
-
-			if (!genId && chunk.id) {
-				genId = chunk.id
-			}
-
-			const delta = chunk.choices[0]?.delta
-			if (delta?.content) {
-				fullResponseText += delta.content;
-				yield {
-					type: "text",
-					text: delta.content,
-				} as ApiStreamChunk;
-			}
-			// if (chunk.usage) {
-			// 	yield {
-			// 		type: "usage",
-			// 		inputTokens: chunk.usage.prompt_tokens || 0,
-			// 		outputTokens: chunk.usage.completion_tokens || 0,
-			// 	}
-			// }
+			throw error
 		}
-
-		await delay(500) // FIXME: necessary delay to ensure generation endpoint is ready
-
-		try {
-			const response = await axios.get(`https://openrouter.ai/api/v1/generation?id=${genId}`, {
-				headers: {
-					Authorization: `Bearer ${this.options.openRouterApiKey}`,
-				},
-				timeout: 5_000, // this request hangs sometimes
-			})
-
-			const generation = response.data?.data
-			console.log("OpenRouter generation details:", response.data)
-			yield {
-				type: "usage",
-				// cacheWriteTokens: 0,
-				// cacheReadTokens: 0,
-				// openrouter generation endpoint fails often
-				inputTokens: generation?.native_tokens_prompt || 0,
-				outputTokens: generation?.native_tokens_completion || 0,
-				totalCost: generation?.total_cost || 0,
-				fullResponseText
-			} as OpenRouterApiStreamUsageChunk;
-		} catch (error) {
-			// ignore if fails
-			console.error("Error fetching OpenRouter generation details:", error)
-		}
-
 	}
+
 	getModel(): { id: string; info: ModelInfo } {
-		const modelId = this.options.openRouterModelId
-		const modelInfo = this.options.openRouterModelInfo
-		if (modelId && modelInfo) {
-			return { id: modelId, info: modelInfo }
+		return {
+			id: this.options.openRouterModelId ?? openRouterDefaultModelId,
+			info: this.options.openRouterModelInfo ?? openRouterDefaultModelInfo,
 		}
-		return { id: openRouterDefaultModelId, info: openRouterDefaultModelInfo }
 	}
 }

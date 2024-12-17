@@ -1,3 +1,6 @@
+import { Anthropic } from "@anthropic-ai/sdk"
+import OpenAI from "openai"
+
 export type ApiProvider =
 	| "anthropic"
 	| "openrouter"
@@ -114,7 +117,6 @@ export const bedrockModels = {
 		maxTokens: 8192,
 		contextWindow: 200_000,
 		supportsImages: true,
-		supportsComputerUse: true,
 		supportsPromptCache: false,
 		inputPrice: 3.0,
 		outputPrice: 15.0,
@@ -226,15 +228,6 @@ export const vertexModels = {
 	},
 } as const satisfies Record<string, ModelInfo>
 
-export const openAiModelInfoSaneDefaults: ModelInfo = {
-	maxTokens: -1,
-	contextWindow: 128_000,
-	supportsImages: true,
-	supportsPromptCache: false,
-	inputPrice: 0,
-	outputPrice: 0,
-}
-
 // Gemini
 // https://ai.google.dev/gemini-api/docs/models/gemini
 export type GeminiModelId = keyof typeof geminiModels
@@ -244,6 +237,7 @@ export const geminiModels = {
 		maxTokens: 8192,
 		contextWindow: 1_048_576,
 		supportsImages: true,
+		supportsComputerUse: true,
 		supportsPromptCache: false,
 		inputPrice: 0,
 		outputPrice: 0,
@@ -300,6 +294,15 @@ export const geminiModels = {
 
 // OpenAI Native
 // https://openai.com/api/pricing/
+export const openAiModelInfoSaneDefaults: ModelInfo = {
+	maxTokens: -1,
+	contextWindow: 128_000,
+	supportsImages: true,
+	supportsPromptCache: false,
+	inputPrice: 0,
+	outputPrice: 0,
+}
+
 export type OpenAiNativeModelId = keyof typeof openAiNativeModels
 export const openAiNativeDefaultModelId: OpenAiNativeModelId = "gpt-4o"
 export const openAiNativeModels = {
@@ -342,3 +345,25 @@ export const openAiNativeModels = {
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#api-specs
 export const azureOpenAiDefaultApiVersion = "2024-08-01-preview"
+
+export interface ApiStream {
+	type: "text" | "usage"
+	text?: string
+	inputTokens?: number
+	outputTokens?: number
+	totalCost?: number
+	fullResponseText?: string
+}
+
+export interface ApiStreamUsageChunk extends ApiStream {
+	type: "usage"
+	inputTokens: number
+	outputTokens: number
+	totalCost: number
+	fullResponseText: string
+}
+
+export interface ApiStreamTextChunk extends ApiStream {
+	type: "text"
+	text: string
+}

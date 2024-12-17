@@ -1,47 +1,47 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import { GoogleGenerativeAI } from "@google/generative-ai"
-import { ApiHandler } from "../"
-import { ApiHandlerOptions, geminiDefaultModelId, GeminiModelId, geminiModels, ModelInfo } from "../../shared/api"
-import { convertAnthropicMessageToGemini } from "../transform/gemini-format"
+import {
+	ApiHandlerOptions,
+	geminiDefaultModelId,
+	GeminiModelId,
+	geminiModels,
+	ModelInfo,
+} from "../../shared/api"
+import { ApiHandler } from "../index"
 import { ApiStream } from "../transform/stream"
+import { getApiKeyFromEnv } from "../../utils/api"
 
 export class GeminiHandler implements ApiHandler {
 	private options: ApiHandlerOptions
 	private client: GoogleGenerativeAI
 
 	constructor(options: ApiHandlerOptions) {
-		if (!options.geminiApiKey) {
+		this.options = options
+		// Try environment variable first, then fall back to provided option
+		const apiKey = this.options.geminiApiKey || 
+			getApiKeyFromEnv("GEMINI_API_KEY", false)
+
+		// For display purposes, store the masked version
+		this.options.geminiApiKey = getApiKeyFromEnv("GEMINI_API_KEY")
+
+		if (!apiKey) {
 			throw new Error("API key is required for Google Gemini")
 		}
-		this.options = options
-		this.client = new GoogleGenerativeAI(options.geminiApiKey)
+		this.client = new GoogleGenerativeAI(apiKey)
 	}
 
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
-		const model = this.client.getGenerativeModel({
-			model: this.getModel().id,
-			systemInstruction: systemPrompt,
-		})
-		const result = await model.generateContentStream({
-			contents: messages.map(convertAnthropicMessageToGemini),
-			generationConfig: {
-				// maxOutputTokens: this.getModel().info.maxTokens,
-				temperature: 0,
-			},
-		})
-
-		for await (const chunk of result.stream) {
-			yield {
-				type: "text",
-				text: chunk.text(),
+		const model = this.client.getGenerativeModel({ model: this.getModel().id })
+		const chat = model.startChat({})
+		const response = await chat.sendMessageStream(systemPrompt)
+		for await (const chunk of response.stream) {
+			const text = chunk.text()
+			if (text) {
+				yield {
+					type: "text",
+					text,
+				}
 			}
-		}
-
-		const response = await result.response
-		yield {
-			type: "usage",
-			inputTokens: response.usageMetadata?.promptTokenCount ?? 0,
-			outputTokens: response.usageMetadata?.candidatesTokenCount ?? 0,
 		}
 	}
 

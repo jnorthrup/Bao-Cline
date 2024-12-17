@@ -1,9 +1,9 @@
 {
   "name": "bao-cline",
-  "displayName": "Roo Cline",
+  "displayName": "Bao Cline",
   "description": "A fork of Cline, an autonomous coding agent, with some added experimental configuration and automation features.",
   "publisher": "jnorthrup",
-  "version": "2.2.13",
+  "version": "2.2.14",
   "icon": "assets/icons/leopard.png",
   "galleryBanner": {
     "color": "#617A91",
@@ -13,13 +13,13 @@
     "vscode": "^1.93.1"
   },
   "author": {
-    "name": "Roo Vet"
+    "name": "Jim N"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/RooVetGit/Bao-Cline"
+    "url": "https://github.com/jnorthrup/Bao-Cline"
   },
-  "homepage": "https://github.com/RooVetGit/Bao-Cline",
+  "homepage": "https://github.com/jnorthrup/Bao-Cline",
   "categories": [
     "AI",
     "Chat",
@@ -49,7 +49,7 @@
       "activitybar": [
         {
           "id": "bao-cline-ActivityBar",
-          "title": "Roo Cline",
+          "title": "Bao Cline",
           "icon": "$(rocket)"
         }
       ]
@@ -92,7 +92,7 @@
       {
         "command": "bao-cline.openInNewTab",
         "title": "Open In New Tab",
-        "category": "Roo Cline"
+        "category": "Bao Cline"
       }
     ],
     "menus": {
@@ -157,7 +157,7 @@
     "package": "npm run build:webview && npm run check-types && npm run lint && node esbuild.js --production",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "start:webview": "cd webview-ui && npm run start",
-    "test": "jest && npm run test:webview",
+    "test": "jest --detectOpenHandles && npm run test:webview",
     "test:webview": "cd webview-ui && npm run test",
     "prepare": "husky",
     "publish:marketplace": "vsce publish",
