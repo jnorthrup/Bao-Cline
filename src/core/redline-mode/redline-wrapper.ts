@@ -1,6 +1,29 @@
 import { execSync } from 'child_process';
 import { join } from 'path';
 
+const SCAN_REGEX = /^\s+scan\s+(?<glob_pattern>[\w\-.*?\[\]{}]+)\s+(?<regex_pattern>(?:[\w\-().\[\]{}]+|\(.*\))*)$/;
+const EDIT_REGEX = /^\s+edit\s+(?<file>[\w\-\.]+)\s+(?<new_text>.+)\s+(?<start>\d+)\s+(?<end>\d+)$/;
+const VERIFY_REGEX = /^\s+verify\s+(?<file1>[\w\-\.]+)\s+(?<file2>[\w\-\.]+)\s+(?<start>\d+)\s+(?<end>\d+)$/;
+
+export interface ScanOptions {
+    globPattern?: string;
+    regexPattern?: string;
+}
+
+export interface EditOptions {
+    filePath: string;
+    newContent: string;
+    startLine: number;
+    endLine: number;
+}
+
+export interface VerifyOptions {
+    filePath1: string;
+    filePath2: string;
+    startLine: number;
+    endLine: number;
+}
+
 export class RedlineWrapper {
     private readonly scriptPath: string;
 
@@ -18,27 +41,40 @@ export class RedlineWrapper {
         }
     }
 
-    public scan(globPattern?: string, regexPattern?: string): string {
-        if (!globPattern || !regexPattern) {
-            return execSync(`${this.scriptPath} scan`, { encoding: 'utf8' });
+    public scan(options?: ScanOptions): string {
+        if (!options?.globPattern || !options?.regexPattern) {
+            const match = execSync(`${this.scriptPath} scan`, { encoding: 'utf8' }).match(SCAN_REGEX);
+            if (!match?.groups) {
+                throw new Error('Invalid scan command');
+            }
+            return this.executeCommand(`scan ${match.groups.glob_pattern} ${match.groups.regex_pattern}`, 'scan');
         }
-        const command = `${this.scriptPath} scan "${globPattern}" "${regexPattern}"`;
+        const command = `${this.scriptPath} scan "${options.globPattern}" "${options.regexPattern}"`;
         return this.executeCommand(command, 'scan');
     }
 
-    public edit(filePath?: string, newContent?: string, startLine?: number, endLine?: number): string {
-        if (!filePath || !newContent || !startLine || !endLine) {
-            return execSync(`${this.scriptPath} edit`, { encoding: 'utf8' });
-        }
-        const command = `${this.scriptPath} edit "${filePath}" "${newContent}" ${startLine} ${endLine}`;
+    public edit(options: EditOptions): string {
+        const command = `${this.scriptPath} edit "${options.filePath}" "${options.newContent}" ${options.startLine} ${options.endLine}`;
         return this.executeCommand(command, 'edit');
     }
 
-    public verify(filePath1?: string, filePath2?: string, startLine?: number, endLine?: number): string {
-        if (!filePath1 || !filePath2 || !startLine || !endLine) {
-            return execSync(`${this.scriptPath} verify`, { encoding: 'utf8' });
-        }
-        const command = `${this.scriptPath} verify "${filePath1}" "${filePath2}" ${startLine} ${endLine}`;
+    public verify(options: VerifyOptions): string {
+        const command = `${this.scriptPath} verify "${options.filePath1}" "${options.filePath2}" ${options.startLine} ${options.endLine}`;
         return this.executeCommand(command, 'verify');
     }
-}
+
+    public diff(filePath1: string, filePath2: string): string {
+        const command = `${this.scriptPath} diff "${filePath1}" "${filePath2}"`;
+        return this.executeCommand(command, 'diff');
+    }
+
+    public head(filePath: string, lines?: number): string {
+        const command = `${this.scriptPath} head "${filePath}" ${lines || ''}`;
+        return this.executeCommand(command, 'head');
+    }
+
+    public tail(filePath: string, lines?: number): string {
+        const command = `${this.scriptPath} tail "${filePath}" ${lines !== undefined ? lines : ''}`;
+        return this.executeCommand(command, 'tail');
+    }
+} 

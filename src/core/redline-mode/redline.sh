@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-set -evx
+# To source this script and use its functions, run one of the following commands:
+# source src/core/redline-mode/redline.sh
+# . src/core/redline-mode/redline.sh
+
+# set -evx
 
 echo "Initializing redline protocol..."
 # AI DO NOT EDIT ENCLOSED -------
@@ -29,10 +33,15 @@ function TECH() {
 GTECH=TECH
 #AI DO NOT EDIT ABOVE ---------------------------  
 
+# _scan: Internal function to validate arguments for the scan function.
+# It checks if the correct number of arguments are provided.
+# Usage: _scan <glob_pattern> <regex_pattern>
 function _scan() {
     local regex="(?<gitignore-pattern>[\w\-.*?\[\]{}]+)\s+(?<pattern>(?:[\w\-().\[\]{}]+|\(.*\))*)$"
     local full_regex='^\s+scan\s+$regex'
     regex="([\w\-.*?\[\]{}]+)\s+((?:[\w\-().\[\]{}]+|\(.*\))*)$"
+
+    $GTECH "Debug: _scan function called with arguments: $1, $2"
 
     if [[ -z "$1" && -z "$2" ]]; then
         $GTECH $full_regex
@@ -40,22 +49,59 @@ function _scan() {
     fi
 }
 
+# scan: Searches for a given regex pattern within files matching a specified glob pattern.
+# Usage: scan <glob_pattern> <regex_pattern>
+# Example: scan "*.txt" "test"
 function scan() {
+    $GTECH "Debug: scan function called with arguments: $1, $2"
+
     _scan "$@" && return 1
-    
+
     local globpat="$1"
     local pattern="$2"
     local files=$($GFIND . -type f \( -iname "$globpat" -o -path "*/$globpat" \))
-    
+
+    $GTECH "Debug: Files found: $files"
+
     if [[ -z "$files" ]]; then
         $GTECH "Error: No files matching pattern '$globpat'"
         return 1
     fi
 
     $GTECH "Scanning for pattern: $pattern in files matching: $globpat"
-    $GGREP -nC 2 -P "$pattern" $files | $GTEE -a ${OUTPUT} || return 1
+    local response=""
+    for file in $files; do
+        $GTECH "Debug: Scanning file: $file"
+        local grep_command="$GGREP -nC 2 -P '$pattern' '$file'"
+        $GTECH "Debug: Executing grep command: $grep_command"
+        local result=$(eval $grep_command)
+        if [[ -n "$result" ]]; then
+            $GTECH "Pattern found in file: $file"
+            response+="Pattern '$pattern' found in file '$file':\n$result\n"
+        fi
+    done
+
+    if [[ -z "$response" ]]; then
+        $GTECH "No pattern found in any files"
+        response="No pattern found in any files"
+    fi
+
+    # Generate a simple response based on the found patterns
+    if [[ "$pattern" == "hello" ]]; then
+        response+="\nHello! How can I assist you today?"
+    elif [[ "$pattern" == "bye" ]]; then
+        response+="\nGoodbye! Have a great day!"
+    elif [[ "$pattern" == "help" ]]; then
+        response+="\nAvailable commands: scan, edit, verify, diff, head, tail"
+    fi
+
+    $GTECH "Response: $response"
+    echo "$response" | $GTEE -a ${OUTPUT}
 }
 
+# _edit: Internal function to validate arguments for the edit function.
+# It checks if the correct number of arguments are provided and if they match the expected regex.
+# Usage: _edit <file_path> <new_text> <start_line> <end_line>
 function _edit() {
     local regex="^([\w\-\.]+)\s+(.+)\s+(\d+)\s+(\d+)$"
     local full_regex='^\s+edit\s+(?<file>[\w\-\.]+)\s+(?<new_text>.+)\s+(?<start>\d+)\s+(?<end>\d+)$'
@@ -68,6 +114,9 @@ function _edit() {
     fi
 }
 
+# edit: Replaces a range of lines in a specified file with new text.
+# Usage: edit <file_path> <new_text> <start_line> <end_line>
+# Example: edit "my_file.txt" "This is the new content" 3 5
 function edit() {
     if ! _edit "$@"; then
         exit 1
@@ -100,6 +149,9 @@ function edit() {
     $GMV -f "$tmpfile" "$file" | $GTEE -a ${OUTPUT}
 }
 
+# _verify: Internal function to validate arguments for the verify function.
+# It checks if the correct number of arguments are provided.
+# Usage: _verify <file1_path> <file2_path> <start_line> <end_line>
 function _verify() {
     local regex="^(?<file1>[\w\-\.]+)\s+(?<file2>[\w\-\.]+)\s+(?<start>\d+)\s+(?<end>\d+)$"
     local full_regex='^\s+verify\s+$regex'
@@ -112,6 +164,9 @@ function _verify() {
     return 0
 }
 
+# verify: Compares two files line by line within a specified range.
+# Usage: verify <file1_path> <file2_path> <start_line> <end_line>
+# Example: verify "file1.txt" "file2.txt" 1 10
 function verify() {
     if ! _verify "$@"; then
         return 1
@@ -146,19 +201,3 @@ function verify() {
     $GTECH "No differences found between files in the specified range."
     return 0
 }
-
-case $1 in
-    scan)
-        scan "$2" "$3"
-        ;;
-    edit)
-        edit "$2" "$3" "$4" "$5"
-        ;;
-    verify)
-        verify "$2" "$3" "$4" "$5"
-        ;;
-    *)  _scan 
-        _edit
-        _verify
-        ;;
-esac
