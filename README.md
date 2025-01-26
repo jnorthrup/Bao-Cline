@@ -222,6 +222,31 @@ To contribute to the project, start by exploring [open issues](https://github.co
 
 </details>
 
+## Ensuring Unique IDs and Icons
+
+To ensure the new IDs and icons are unique, follow these steps:
+
+1. **Use a UUID generator for IDs** 🆔
+   - Utilize a UUID (Universally Unique Identifier) generator to create unique IDs for `roo-cline` and `parent cline/cline`. This ensures that each ID is globally unique and avoids conflicts. You can use libraries like `uuid` in Node.js.
+
+2. **Check for existing IDs and icons** 🔍
+   - Before assigning a new ID or icon, check the existing IDs and icons in the project to avoid duplicates. This can be done by maintaining a registry or using a script to scan the project files.
+
+3. **Use descriptive names for icons** 🖼️
+   - Ensure that the icon names are descriptive and specific to the functionality they represent. This reduces the likelihood of name collisions and makes it easier to identify the purpose of each icon.
+
+4. **Maintain a registry of IDs and icons** 📜
+   - Create and maintain a registry of all IDs and icons used in the project. This registry can be a simple JSON file or a database that keeps track of all the unique identifiers and their associated icons. This helps in avoiding duplicates and managing the assets efficiently.
+
+5. **Implement validation checks** ✅
+   - Implement validation checks in the build process to ensure that the new IDs and icons are unique. This can be done by adding scripts that compare the new IDs and icons against the existing ones in the registry.
+
+6. **Use version control for assets** 📂
+   - Use version control systems like Git to manage the assets, including IDs and icons. This allows you to track changes, revert to previous versions if needed, and collaborate with other team members effectively.
+
+7. **Document the process** 📝
+   - Create detailed documentation for the process of generating and assigning new IDs and icons. This documentation should include guidelines, best practices, and tools used. This ensures consistency and helps new team members understand the process.
+
 ## License
 
 [Apache 2.0 © 2024 Cline Bot Inc.](./LICENSE)
