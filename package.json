@@ -168,7 +168,8 @@
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "watch-tests": "tsc -p . -w --outDir out"
+    "watch-tests": "tsc -p . -w --outDir out",
+    "validate:ids": "node scripts/validate-ids.js"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.10",
