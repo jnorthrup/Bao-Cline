@@ -1,8 +1,6 @@
 # Roo Code Changelog
 
-## 3.3.3
-
-### Patch Changes
+## [3.3.3]
 
 - Throw errors sooner when a mode tries to write a restricted file
 
