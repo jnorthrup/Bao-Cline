@@ -1,0 +1,15 @@
+[submodule "ofac/CodeShell"]
+	path = ofac/CodeShell
+	url = https://github.com/WisdomShell/codeshell-intellij.git
+[submodule "ofac/Bumblebee"]
+	path = ofac/Bumblebee
+	url = https://github.com/JetBrains-Research/bumblebee.git
+[submodule "ofac/DevoxxGenie"]
+	path = ofac/DevoxxGenie
+	url = https://github.com/devoxx/DevoxxGenieIDEAPlugin.git
+[submodule "ofac/PSIMiner"]
+	path = ofac/PSIMiner
+	url = https://github.com/JetBrains-Research/psiminer.git
+[submodule "ofac/EM-guide"]
+	path = ofac/EM-guide
+	url = https://github.com/JetBrains-Research/llm-guide-refactorings
