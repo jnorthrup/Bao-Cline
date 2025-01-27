@@ -19,7 +19,8 @@ html {
 
 body {
 	margin: 0;
-	line-height: 1.25;
+	line-height: 1.5; /* Increased line height for better readability */
+	font-size: 14px; /* Increased font size for better readability */
 }
 
 body.scrollable,
@@ -66,6 +67,7 @@ body:focus-within .code-block-scrollable {
 Fix VSCode ignoring webkit scrollbar modifiers
 https://github.com/microsoft/vscode/issues/213045
 */
+
 @supports selector(::-webkit-scrollbar) {
 	html {
 		scrollbar-color: unset;
@@ -103,6 +105,7 @@ The above scrollbar styling uses some transparent background color magic to acco
 Dropdown label
 https://github.com/microsoft/vscode-webview-ui-toolkit/tree/main/src/dropdown#with-label
 */
+
 .dropdown-container {
 	box-sizing: border-box;
 	display: flex;
@@ -110,6 +113,7 @@ https://github.com/microsoft/vscode-webview-ui-toolkit/tree/main/src/dropdown#wi
 	align-items: flex-start;
 	justify-content: flex-start;
 }
+
 .dropdown-container label {
 	display: block;
 	color: var(--vscode-foreground);
@@ -133,18 +137,44 @@ vscode-dropdown::part(listbox) {
 	cursor: pointer;
 	opacity: 0.65;
 }
+
 .input-icon-button:hover {
 	opacity: 1;
 }
+
 .input-icon-button.disabled {
 	cursor: not-allowed;
 	opacity: 0.4;
 }
+
 .input-icon-button.disabled:hover {
 	opacity: 0.4;
 }
 
 /* Context mentions */
+/* Context mentions */
+
+:root {
+	--vscode-editor-foreground: #ffcc00; /* Explicitly set to vibrant yellow */
+}
+
+.important-message {
+	font-weight: bold;
+	background-color: var(--vscode-editor-background, #1e1e1e);
+	color: var(--vscode-editor-foreground); /* Use the explicitly set variable */
+	padding: 5px;
+	border-radius: 5px;
+	margin: 5px 0;
+}
+
+.thinking-message {
+	font-style: italic;
+	background-color: var(--vscode-editor-background, #1e1e1e);
+	color: var(--vscode-editor-foreground); /* Kept as is, but could be adjusted further */
+	padding: 5px;
+	border-radius: 5px;
+	margin: 5px 0;
+}
 
 .mention-context-textarea-highlight {
 	background-color: color-mix(in srgb, var(--vscode-badge-foreground) 30%, transparent);
@@ -166,4 +196,70 @@ vscode-dropdown::part(listbox) {
 	background-color: color-mix(in srgb, var(--vscode-badge-foreground) 30%, transparent);
 	border-radius: 3px;
 	box-shadow: 0 0 0 0.5px color-mix(in srgb, var(--vscode-badge-foreground) 30%, transparent);
+}
+
+/* Enhancements */
+
+/* Buttons */
+vscode-button::part(control) {
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: 1px solid var(--vscode-button-border);
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+vscode-button::part(control):hover {
+	background-color: var(--vscode-button-hoverBackground);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+vscode-button::part(control):active {
+	background-color: var(--vscode-button-activeBackground);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Links */
+a {
+	color: var(--vscode-textLink-foreground);
+	text-decoration: none;
+	transition: color 0.3s;
+}
+
+a:hover {
+	color: var(--vscode-textLink-activeForeground);
+}
+
+/* Sections */
+section {
+	margin-bottom: 20px;
+	padding: 10px;
+	background-color: var(--vscode-editor-background, #1e1e1e);
+	border-radius: 5px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+section h1, section h2, section h3 {
+	color: var(--vscode-editor-foreground);
+	margin-bottom: 10px;
+}
+
+section p {
+	color: var(--vscode-editor-foreground);
+	margin-bottom: 10px;
+}
+
+/* Code Blocks */
+pre {
+	background-color: var(--vscode-editor-background, #1e1e1e);
+	color: var(--vscode-editor-foreground);
+	padding: 10px;
+	border-radius: 5px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	overflow-x: auto;
+}
+
+pre code {
+	font-family: 'Courier New', Courier, monospace;
 }
